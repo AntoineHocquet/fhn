@@ -1,7 +1,43 @@
 // src/simulations/forward.rs
 
+use serde::Serialize;
 use rand_distr::{Distribution, Normal};
 use crate::models::neuron::{NeuronState, FhnParameters};
+
+/// One row of output (for 1 neuron at 1 time step)
+#[derive(Serialize)]
+pub struct SimulationRow {
+    pub neuron_id: usize,
+    pub time: f64,
+    pub v: f64,
+    pub w: f64,
+    pub y: f64,
+}
+
+pub fn save_simulation_to_csv(
+    sim: &Vec<Vec<NeuronState>>,
+    dt: f64,
+    path: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut wtr = csv::Writer::from_path(path)?;
+
+    for (neuron_id, trajectory) in sim.iter().enumerate() {
+        for (step, state) in trajectory.iter().enumerate() {
+            let row = SimulationRow {
+                neuron_id,
+                time: step as f64 * dt,
+                v: state.v,
+                w: state.w,
+                y: state.y,
+            };
+            wtr.serialize(row)?;
+        }
+    }
+
+    wtr.flush()?;
+    Ok(())
+}
+
 
 /// Simulates L neurons over M time steps of size dt.
 /// Returns: Vec of trajectories, each of length M.
