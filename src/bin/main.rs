@@ -8,6 +8,8 @@ use fhn::simulations::forward::plot_local_field_potential;
 use fhn::simulations::forward::plot_individual_neurons;
 use fhn::optim::gradient::compute_control_gradient;
 use fhn::simulations::adjoint::compute_adjoint;
+use fhn::optim::gradient::gradient_step;
+
 
 
 
@@ -101,12 +103,38 @@ fn main() {
             }
         }
         Commands::Optimize { neurons, steps, dt } => {
-            // Placeholder control
-            let control = vec![0.5; *steps];
+            let initial = NeuronState {
+                v: -1.0,
+                w: 0.0,
+                y: 0.5,
+            };
+            let params = FhnParameters {
+                a: 0.7,
+                b: 0.8,
+                c: 0.08,
+                Vrev: 1.2,
+                ar: 1.0,
+                ad: 0.3,
+                Tmax: 1.0,
+                lambda: 0.1,
+                VT: 2.0,
+                J: 0.46,
+                Iext: 0.5,
+            };
+            let sigma_ext = 0.04;
+
+            // 1. Start from dummy control
+            let mut control = vec![0.5; *steps];
+            // 2. Simulate with control
             let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
-            let adj = compute_adjoint(&sim, [0.0, 0.0, 0.0], 1.0, 1.0, *dt);
+            // 3. Compute adjoint
+            let adj = compute_adjoint(&sim, &params, [0.0, 0.0, 0.0], 1.0, 1.0, *dt);
+            // 4. Compute gradient
             let grad = compute_control_gradient(&adj, &control, 0.01, *dt);
+            // 5. Apply gradient descent
+            let control_updated = gradient_step(&control, &grad, 0.1);
             println!("∇J(0) = {:.4}", grad[0]);
+            println!("α₀ old = {:.4}, α₀ new = {:.4}", control[0], control_updated[0]);
         }
     }
 }

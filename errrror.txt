@@ -1,0 +1,164 @@
+warning: unused import: `ndarray::Array1`
+ --> src/models/neuron.rs:2:5
+  |
+2 | use ndarray::Array1;
+  |     ^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `mean_y`
+  --> src/simulations/adjoint.rs:31:13
+   |
+31 |         let mean_y: f64 = sim.iter().map(|traj| traj[r + 1].y).sum::<f64>() / (L as f64);
+   |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_mean_y`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: structure field `Vrev` should have a snake case name
+  --> src/models/neuron.rs:19:9
+   |
+19 |     pub Vrev: f64,
+   |         ^^^^ help: convert the identifier to snake case (notice the capitalization): `vrev`
+   |
+   = note: `#[warn(non_snake_case)]` on by default
+
+warning: structure field `Tmax` should have a snake case name
+  --> src/models/neuron.rs:22:9
+   |
+22 |     pub Tmax: f64,
+   |         ^^^^ help: convert the identifier to snake case: `tmax`
+
+warning: structure field `VT` should have a snake case name
+  --> src/models/neuron.rs:24:9
+   |
+24 |     pub VT: f64,
+   |         ^^ help: convert the identifier to snake case: `vt`
+
+warning: structure field `J` should have a snake case name
+  --> src/models/neuron.rs:25:9
+   |
+25 |     pub J: f64,      // coupling strength
+   |         ^ help: convert the identifier to snake case: `j`
+
+warning: structure field `Iext` should have a snake case name
+  --> src/models/neuron.rs:26:9
+   |
+26 |     pub Iext: f64,   // external current
+   |         ^^^^ help: convert the identifier to snake case (notice the capitalization): `iext`
+
+warning: variable `L` should have a snake case name
+  --> src/simulations/forward.rs:48:5
+   |
+48 |     L: usize,
+   |     ^ help: convert the identifier to snake case: `l`
+
+warning: variable `M` should have a snake case name
+  --> src/simulations/forward.rs:49:5
+   |
+49 |     M: usize,
+   |     ^ help: convert the identifier to snake case: `m`
+
+warning: variable `M` should have a snake case name
+  --> src/simulations/forward.rs:95:9
+   |
+95 |     let M = sim[0].len();
+   |         ^ help: convert the identifier to snake case: `m`
+
+warning: variable `L` should have a snake case name
+  --> src/simulations/forward.rs:96:9
+   |
+96 |     let L = sim.len();
+   |         ^ help: convert the identifier to snake case: `l`
+
+warning: variable `M` should have a snake case name
+   --> src/simulations/forward.rs:141:9
+    |
+141 |     let M = sim[0].len();
+    |         ^ help: convert the identifier to snake case: `m`
+
+warning: variable `L` should have a snake case name
+   --> src/simulations/forward.rs:142:9
+    |
+142 |     let L = sim.len();
+    |         ^ help: convert the identifier to snake case: `l`
+
+warning: variable `cT` should have a snake case name
+  --> src/simulations/adjoint.rs:12:5
+   |
+12 |     cT: f64,
+   |     ^^ help: convert the identifier to snake case: `c_t`
+
+warning: variable `L` should have a snake case name
+  --> src/simulations/adjoint.rs:15:9
+   |
+15 |     let L = sim.len();
+   |         ^ help: convert the identifier to snake case: `l`
+
+warning: variable `M` should have a snake case name
+  --> src/simulations/adjoint.rs:16:9
+   |
+16 |     let M = sim[0].len();
+   |         ^ help: convert the identifier to snake case: `m`
+
+warning: `fhn` (lib) generated 16 warnings (run `cargo fix --lib -p fhn` to apply 1 suggestion)
+   Compiling fhn v0.1.0 (/home/antoine/Documents/fhn)
+error[E0433]: failed to resolve: could not find `optim` in `fhn`
+ --> src/bin/main.rs:9:10
+  |
+9 | use fhn::optim::gradient::compute_control_gradient;
+  |          ^^^^^ could not find `optim` in `fhn`
+
+error[E0433]: failed to resolve: could not find `optim` in `fhn`
+  --> src/bin/main.rs:11:10
+   |
+11 | use fhn::optim::gradient::gradient_step;
+   |          ^^^^^ could not find `optim` in `fhn`
+
+error[E0425]: cannot find value `params` in this scope
+   --> src/bin/main.rs:109:71
+    |
+109 |             let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
+    |                                                                       ^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `sigma_ext` in this scope
+   --> src/bin/main.rs:109:79
+    |
+109 |             let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
+    |                                                                               ^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `initial` in this scope
+   --> src/bin/main.rs:109:90
+    |
+109 |             let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
+    |                                                                                          ^^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `params` in this scope
+   --> src/bin/main.rs:111:46
+    |
+111 |             let adj = compute_adjoint(&sim, &params, [0.0, 0.0, 0.0], 1.0, 1.0, *dt);
+    |                                              ^^^^^^ not found in this scope
+
+warning: unused import: `fhn::simulations::forward::save_simulation_to_csv`
+ --> src/bin/main.rs:6:5
+  |
+6 | use fhn::simulations::forward::save_simulation_to_csv;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `fhn::simulations::forward::plot_local_field_potential`
+ --> src/bin/main.rs:7:5
+  |
+7 | use fhn::simulations::forward::plot_local_field_potential;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `fhn::simulations::forward::plot_individual_neurons`
+ --> src/bin/main.rs:8:5
+  |
+8 | use fhn::simulations::forward::plot_individual_neurons;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some errors have detailed explanations: E0425, E0433.
+For more information about an error, try `rustc --explain E0425`.
+warning: `fhn` (bin "main") generated 3 warnings
+error: could not compile `fhn` (bin "main") due to 6 previous errors; 3 warnings emitted

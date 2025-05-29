@@ -5,8 +5,9 @@ pub type AdjointTrajectory = Vec<[f64; 3]>;
 
 /// Solves the adjoint equation backward in time
 pub fn compute_adjoint(
-    sim: &Vec<Vec<NeuronState>>, // forward solution: L x M
-    y_target: [f64; 3],          // desired final state
+    sim: &Vec<Vec<NeuronState>>,
+    params: &FhnParameters,
+    y_target: [f64; 3],
     gamma: f64,
     cT: f64,
     dt: f64,
@@ -39,7 +40,7 @@ pub fn compute_adjoint(
                 - p_next[1]
                 - 2.0 * gamma * (x.v - mean_v)
             );
-            let dp1 = dt * (x.c * p_next[0] - x.c * x.b * p_next[1]);
+            let dp1 = dt * (params.c * p_next[0] - params.c * params.b * p_next[1]);
             let dp2 = 0.0; // no running cost on y
 
             adjoints[i][r][0] = p_next[0] + dp0;

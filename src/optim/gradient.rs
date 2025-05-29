@@ -16,3 +16,18 @@ pub fn compute_control_gradient(
 
     gradient
 }
+
+
+/// One gradient descent update: alpha_new = alpha - s * grad
+pub fn gradient_step(
+    control: &Vec<f64>,
+    gradient: &Vec<f64>,
+    step_size: f64,
+) -> Vec<f64> {
+    control
+        .iter()
+        .zip(gradient.iter())
+        .map(|(a, g)| a - step_size * g)
+        .collect()
+}
+
