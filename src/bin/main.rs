@@ -6,6 +6,9 @@ use fhn::simulations::forward::simulate_fhn_population;
 use fhn::simulations::forward::save_simulation_to_csv;
 use fhn::simulations::forward::plot_local_field_potential;
 use fhn::simulations::forward::plot_individual_neurons;
+use fhn::optim::gradient::compute_control_gradient;
+use fhn::simulations::adjoint::compute_adjoint;
+
 
 
 
@@ -25,12 +28,18 @@ enum Commands {
         /// Number of neurons (L)
         #[arg(short, long, default_value_t = 10)]
         neurons: usize,
-
         /// Number of time steps (M)
         #[arg(short, long, default_value_t = 1000)]
         steps: usize,
-
         /// Time step size (dt)
+        #[arg(short, long, default_value_t = 0.1)]
+        dt: f64,
+    },
+    Optimize {
+        #[arg(short, long, default_value_t = 100)]
+        neurons: usize,
+        #[arg(short, long, default_value_t = 1000)]
+        steps: usize,
         #[arg(short, long, default_value_t = 0.1)]
         dt: f64,
     },
@@ -90,6 +99,14 @@ fn main() {
                 Ok(_) => println!("✅ Individual neuron plot saved to figures/neurons.png"),
                 Err(e) => eprintln!("❌ Neuron plot error: {}", e),
             }
+        }
+        Commands::Optimize { neurons, steps, dt } => {
+            // Placeholder control
+            let control = vec![0.5; *steps];
+            let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
+            let adj = compute_adjoint(&sim, [0.0, 0.0, 0.0], 1.0, 1.0, *dt);
+            let grad = compute_control_gradient(&adj, &control, 0.01, *dt);
+            println!("∇J(0) = {:.4}", grad[0]);
         }
     }
 }
