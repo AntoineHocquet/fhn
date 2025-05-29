@@ -4,6 +4,10 @@ use clap::{Parser, Subcommand};
 use fhn::models::neuron::{FhnParameters, NeuronState};
 use fhn::simulations::forward::simulate_fhn_population;
 use fhn::simulations::forward::save_simulation_to_csv;
+use fhn::simulations::forward::plot_local_field_potential;
+use fhn::simulations::forward::plot_individual_neurons;
+
+
 
 /// CLI for the FitzHugh–Nagumo control project
 #[derive(Parser)]
@@ -76,7 +80,16 @@ fn main() {
                 Ok(_) => println!("✅ Saved to output/simulation.csv"),
                 Err(e) => eprintln!("❌ Failed to save CSV: {}", e),
             }
-
+            // Plotting the average value of the potential
+            match fhn::simulations::forward::plot_local_field_potential(&sim, *dt, "figures/lfp.png") {
+                Ok(_) => println!("✅ Plot saved to figures/lfp.png"),
+                Err(e) => eprintln!("❌ Plotting error: {}", e),
+            }
+            // Plotting individual trajectories
+            match fhn::simulations::forward::plot_individual_neurons(&sim, *dt, "figures/neurons.png", 5) {
+                Ok(_) => println!("✅ Individual neuron plot saved to figures/neurons.png"),
+                Err(e) => eprintln!("❌ Neuron plot error: {}", e),
+            }
         }
     }
 }

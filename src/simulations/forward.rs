@@ -1,8 +1,11 @@
 // src/simulations/forward.rs
 
+use plotters::style::full_palette::PURPLE;
 use serde::Serialize;
 use rand_distr::{Distribution, Normal};
 use crate::models::neuron::{NeuronState, FhnParameters};
+use plotters::prelude::*;
+
 
 /// One row of output (for 1 neuron at 1 time step)
 #[derive(Serialize)]
@@ -80,4 +83,104 @@ pub fn simulate_fhn_population(
     }
 
     trajectories
+}
+
+
+/// Plots the average membrane potential (v) over time
+pub fn plot_local_field_potential(
+    sim: &Vec<Vec<NeuronState>>,
+    dt: f64,
+    filename: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let M = sim[0].len();
+    let L = sim.len();
+
+    // Compute mean voltage at each time step
+    let mean_v: Vec<f64> = (0..M)
+        .map(|t| {
+            sim.iter().map(|traj| traj[t].v).sum::<f64>() / (L as f64)
+        })
+        .collect();
+
+    let root = BitMapBackend::new(filename, (800, 600)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let time_max = M as f64 * dt;
+    let v_min = mean_v.iter().cloned().fold(f64::INFINITY, f64::min);
+    let v_max = mean_v.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Local Field Potential", ("sans-serif", 30))
+        .margin(20)
+        .x_label_area_size(40)
+        .y_label_area_size(40)
+        .build_cartesian_2d(0.0..time_max, v_min..v_max)?;
+
+    chart.configure_mesh().draw()?;
+
+    chart.draw_series(LineSeries::new(
+        mean_v.iter().enumerate().map(|(i, v)| (i as f64 * dt, *v)),
+        &RED,
+    ))?
+    .label("mean(v)")
+    .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+
+    chart.configure_series_labels().border_style(&BLACK).draw()?;
+
+    Ok(())
+}
+
+
+/// Plots the v(t) trajectory of a few individual neurons
+pub fn plot_individual_neurons(
+    sim: &Vec<Vec<NeuronState>>,
+    dt: f64,
+    filename: &str,
+    count: usize,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let M = sim[0].len();
+    let L = sim.len();
+    let count = count.min(L); // clamp to number of available neurons
+
+    let root = BitMapBackend::new(filename, (800, 600)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let time_max = M as f64 * dt;
+
+    let v_min = sim.iter()
+        .take(count)
+        .flat_map(|traj| traj.iter().map(|s| s.v))
+        .fold(f64::INFINITY, f64::min);
+    
+    let v_max = sim.iter()
+        .take(count)
+        .flat_map(|traj| traj.iter().map(|s| s.v))
+        .fold(f64::NEG_INFINITY, f64::max);
+
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Neuron Voltages", ("sans-serif", 30))
+        .margin(20)
+        .x_label_area_size(40)
+        .y_label_area_size(40)
+        .build_cartesian_2d(0.0..time_max, v_min..v_max)?;
+
+    chart.configure_mesh().draw()?;
+
+    let colors = [
+        &RED, &BLUE, &GREEN, &MAGENTA, &CYAN, &BLACK, &YELLOW, &PURPLE,
+    ];
+
+    for i in 0..count {
+        let color = colors[i % colors.len()];
+        chart
+            .draw_series(LineSeries::new(
+                sim[i].iter().enumerate().map(|(t, s)| (t as f64 * dt, s.v)),
+                color,
+            ))?
+            .label(format!("Neuron {}", i))
+            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], color));
+    }
+
+    chart.configure_series_labels().border_style(&BLACK).draw()?;
+    Ok(())
 }
