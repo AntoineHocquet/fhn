@@ -1,5 +1,4 @@
 // src/models/neuron.rs
-use ndarray::Array1;
 
 #[derive(Debug,Clone, Copy)]
 pub struct NeuronState {
@@ -25,11 +24,11 @@ pub struct FhnParameters {
     pub J: f64,      // coupling strength
     pub Iext: f64,   // external current
 }
+
 /// Implement the Drift function:
 /// Add a method to compute the deterministic drift 
 /// of a neuron's state. The mean_y variable is the average from the
 ///  other neurons (mean field term)
-
 impl NeuronState {
     pub fn drift(&self, mean_y: f64, params: &FhnParameters) -> NeuronState {
         let v = self.v;

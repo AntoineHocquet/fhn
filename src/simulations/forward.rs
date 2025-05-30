@@ -184,3 +184,73 @@ pub fn plot_individual_neurons(
     chart.configure_series_labels().border_style(&BLACK).draw()?;
     Ok(())
 }
+
+
+/// Simulate the population using a fixed control α(t)
+pub fn simulate_with_control(
+    L: usize,
+    M: usize,
+    dt: f64,
+    params: &FhnParameters,
+    control: &Vec<f64>,
+    initial: NeuronState,
+) -> Vec<Vec<NeuronState>> {
+    let mut trajectories = vec![vec![initial; M]; L];
+
+    for t in 1..M {
+        let mean_y = trajectories.iter().map(|traj| traj[t - 1].y).sum::<f64>() / L as f64;
+        let alpha = control[t - 1]; // assume control length = M
+
+        for traj in trajectories.iter_mut() {
+            let prev = traj[t - 1];
+            let drift = prev.drift(mean_y, params);
+            traj[t] = NeuronState {
+                v: prev.v + dt * (drift.v + alpha),
+                w: prev.w + dt * drift.w,
+                y: prev.y + dt * drift.y,
+            };
+        }
+    }
+
+    trajectories
+}
+
+
+pub fn plot_average_potential(
+    sim: &Vec<Vec<NeuronState>>,
+    dt: f64,
+    filename: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let m = sim[0].len();
+    let l = sim.len();
+    let root = BitMapBackend::new(filename, (800, 600)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let t_max = dt * m as f64;
+
+    let mean_v: Vec<f64> = (0..m)
+        .map(|t| sim.iter().map(|traj| traj[t].v).sum::<f64>() / l as f64)
+        .collect();
+
+    let v_min = mean_v.iter().cloned().fold(f64::INFINITY, f64::min);
+    let v_max = mean_v.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Average Voltage under Optimal Control", ("sans-serif", 30))
+        .margin(20)
+        .x_label_area_size(40)
+        .y_label_area_size(50)
+        .build_cartesian_2d(0.0..t_max, v_min..v_max)?;
+
+    chart.configure_mesh().draw()?;
+
+    chart.draw_series(LineSeries::new(
+        mean_v.iter().enumerate().map(|(t, v)| (t as f64 * dt, *v)),
+        &BLUE,
+    ))?
+    .label("v̄(t)")
+    .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
+
+    chart.configure_series_labels().border_style(&BLACK).draw()?;
+    Ok(())
+}

@@ -1,0 +1,166 @@
+warning: unused import: `ndarray::Array1`
+ --> src/models/neuron.rs:2:5
+  |
+2 | use ndarray::Array1;
+  |     ^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `mean_y`
+  --> src/simulations/adjoint.rs:34:13
+   |
+34 |         let mean_y: f64 = sim.iter().map(|traj| traj[r + 1].y).sum::<f64>() / (L as f64);
+   |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_mean_y`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `dt`
+  --> src/optim/gradient.rs:11:5
+   |
+11 |     dt: f64,
+   |     ^^ help: if this is intentional, prefix it with an underscore: `_dt`
+
+warning: value assigned to `terminal_cost` is never read
+  --> src/optim/gradient.rs:54:13
+   |
+54 |     let mut terminal_cost = 0.0;
+   |             ^^^^^^^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` on by default
+
+warning: structure field `Vrev` should have a snake case name
+  --> src/models/neuron.rs:19:9
+   |
+19 |     pub Vrev: f64,
+   |         ^^^^ help: convert the identifier to snake case (notice the capitalization): `vrev`
+   |
+   = note: `#[warn(non_snake_case)]` on by default
+
+warning: structure field `Tmax` should have a snake case name
+  --> src/models/neuron.rs:22:9
+   |
+22 |     pub Tmax: f64,
+   |         ^^^^ help: convert the identifier to snake case: `tmax`
+
+warning: structure field `VT` should have a snake case name
+  --> src/models/neuron.rs:24:9
+   |
+24 |     pub VT: f64,
+   |         ^^ help: convert the identifier to snake case: `vt`
+
+warning: structure field `J` should have a snake case name
+  --> src/models/neuron.rs:25:9
+   |
+25 |     pub J: f64,      // coupling strength
+   |         ^ help: convert the identifier to snake case: `j`
+
+warning: structure field `Iext` should have a snake case name
+  --> src/models/neuron.rs:26:9
+   |
+26 |     pub Iext: f64,   // external current
+   |         ^^^^ help: convert the identifier to snake case (notice the capitalization): `iext`
+
+warning: variable `L` should have a snake case name
+  --> src/simulations/forward.rs:48:5
+   |
+48 |     L: usize,
+   |     ^ help: convert the identifier to snake case: `l`
+
+warning: variable `M` should have a snake case name
+  --> src/simulations/forward.rs:49:5
+   |
+49 |     M: usize,
+   |     ^ help: convert the identifier to snake case: `m`
+
+warning: variable `M` should have a snake case name
+  --> src/simulations/forward.rs:95:9
+   |
+95 |     let M = sim[0].len();
+   |         ^ help: convert the identifier to snake case: `m`
+
+warning: variable `L` should have a snake case name
+  --> src/simulations/forward.rs:96:9
+   |
+96 |     let L = sim.len();
+   |         ^ help: convert the identifier to snake case: `l`
+
+warning: variable `M` should have a snake case name
+   --> src/simulations/forward.rs:141:9
+    |
+141 |     let M = sim[0].len();
+    |         ^ help: convert the identifier to snake case: `m`
+
+warning: variable `L` should have a snake case name
+   --> src/simulations/forward.rs:142:9
+    |
+142 |     let L = sim.len();
+    |         ^ help: convert the identifier to snake case: `l`
+
+warning: variable `cT` should have a snake case name
+  --> src/simulations/adjoint.rs:15:5
+   |
+15 |     cT: f64,
+   |     ^^ help: convert the identifier to snake case: `c_t`
+
+warning: variable `L` should have a snake case name
+  --> src/simulations/adjoint.rs:18:9
+   |
+18 |     let L = sim.len();
+   |         ^ help: convert the identifier to snake case: `l`
+
+warning: variable `M` should have a snake case name
+  --> src/simulations/adjoint.rs:19:9
+   |
+19 |     let M = sim[0].len();
+   |         ^ help: convert the identifier to snake case: `m`
+
+warning: variable `L` should have a snake case name
+  --> src/optim/gradient.rs:13:9
+   |
+13 |     let L = adjoints.len();
+   |         ^ help: convert the identifier to snake case: `l`
+
+warning: variable `M` should have a snake case name
+  --> src/optim/gradient.rs:14:9
+   |
+14 |     let M = adjoints[0].len();
+   |         ^ help: convert the identifier to snake case: `m`
+
+warning: variable `mean_v_T` should have a snake case name
+  --> src/optim/gradient.rs:65:9
+   |
+65 |     let mean_v_T: f64 = sim.iter().map(|traj| traj[m - 1].v).sum::<f64>() / (l as f64);
+   |         ^^^^^^^^ help: convert the identifier to snake case: `mean_v_t`
+
+warning: `fhn` (lib) generated 21 warnings (run `cargo fix --lib -p fhn` to apply 1 suggestion)
+   Compiling fhn v0.1.0 (/home/antoine/Documents/fhn)
+error[E0425]: cannot find value `adj` in this scope
+   --> src/bin/main.rs:182:46
+    |
+182 |             match plot_adjoint_trajectories(&adj, *dt, "figures/adjoint.png", 5) {
+    |                                              ^^^ not found in this scope
+
+warning: unused import: `fhn::simulations::forward::save_simulation_to_csv`
+ --> src/bin/main.rs:6:5
+  |
+6 | use fhn::simulations::forward::save_simulation_to_csv;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `fhn::simulations::forward::plot_local_field_potential`
+ --> src/bin/main.rs:7:5
+  |
+7 | use fhn::simulations::forward::plot_local_field_potential;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `fhn::simulations::forward::plot_individual_neurons`
+ --> src/bin/main.rs:8:5
+  |
+8 | use fhn::simulations::forward::plot_individual_neurons;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0425`.
+warning: `fhn` (bin "main") generated 3 warnings
+error: could not compile `fhn` (bin "main") due to 1 previous error; 3 warnings emitted

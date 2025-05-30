@@ -1,4 +1,7 @@
+// src/simulations/adjoint.rs
+
 use crate::models::neuron::{FhnParameters, NeuronState};
+use plotters::prelude::*;
 
 /// One adjoint trajectory corresponding to a neuron
 pub type AdjointTrajectory = Vec<[f64; 3]>;
@@ -50,4 +53,58 @@ pub fn compute_adjoint(
     }
 
     adjoints
+}
+
+
+pub fn plot_adjoint_trajectories(
+    adj: &Vec<Vec<[f64; 3]>>,
+    dt: f64,
+    filename: &str,
+    count: usize,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let m = adj[0].len();
+    let l = adj.len();
+    let count = count.min(l);
+
+    let root = BitMapBackend::new(filename, (800, 600)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let t_max = m as f64 * dt;
+
+    let p_min = adj.iter()
+        .take(count)
+        .flat_map(|traj| traj.iter().map(|p| p[0]))
+        .fold(f64::INFINITY, f64::min);
+
+    let p_max = adj.iter()
+        .take(count)
+        .flat_map(|traj| traj.iter().map(|p| p[0]))
+        .fold(f64::NEG_INFINITY, f64::max);
+
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Adjoint State p⁰(t) for Select Neurons", ("sans-serif", 30))
+        .margin(20)
+        .x_label_area_size(40)
+        .y_label_area_size(50)
+        .build_cartesian_2d(0.0..t_max, p_min..p_max)?;
+
+    chart.configure_mesh().draw()?;
+
+    let colors = [
+        &RED, &BLUE, &GREEN, &CYAN, &MAGENTA, &BLACK, &YELLOW,
+    ];
+
+    for i in 0..count {
+        let color = colors[i % colors.len()];
+        chart
+            .draw_series(LineSeries::new(
+                adj[i].iter().enumerate().map(|(t, p)| (t as f64 * dt, p[0])),
+                color,
+            ))?
+            .label(format!("Neuron {}", i))
+            .legend(move |(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], *color));
+    }
+
+    chart.configure_series_labels().border_style(&BLACK).draw()?;
+    Ok(())
 }

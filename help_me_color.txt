@@ -7,12 +7,27 @@ warning: unused import: `ndarray::Array1`
   = note: `#[warn(unused_imports)]` on by default
 
 warning: unused variable: `mean_y`
-  --> src/simulations/adjoint.rs:31:13
+  --> src/simulations/adjoint.rs:34:13
    |
-31 |         let mean_y: f64 = sim.iter().map(|traj| traj[r + 1].y).sum::<f64>() / (L as f64);
+34 |         let mean_y: f64 = sim.iter().map(|traj| traj[r + 1].y).sum::<f64>() / (L as f64);
    |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_mean_y`
    |
    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `dt`
+  --> src/optim/gradient.rs:11:5
+   |
+11 |     dt: f64,
+   |     ^^ help: if this is intentional, prefix it with an underscore: `_dt`
+
+warning: value assigned to `terminal_cost` is never read
+  --> src/optim/gradient.rs:54:13
+   |
+54 |     let mut terminal_cost = 0.0;
+   |             ^^^^^^^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` on by default
 
 warning: structure field `Vrev` should have a snake case name
   --> src/models/neuron.rs:19:9
@@ -83,60 +98,48 @@ warning: variable `L` should have a snake case name
     |         ^ help: convert the identifier to snake case: `l`
 
 warning: variable `cT` should have a snake case name
-  --> src/simulations/adjoint.rs:12:5
+  --> src/simulations/adjoint.rs:15:5
    |
-12 |     cT: f64,
+15 |     cT: f64,
    |     ^^ help: convert the identifier to snake case: `c_t`
 
 warning: variable `L` should have a snake case name
-  --> src/simulations/adjoint.rs:15:9
+  --> src/simulations/adjoint.rs:18:9
    |
-15 |     let L = sim.len();
+18 |     let L = sim.len();
    |         ^ help: convert the identifier to snake case: `l`
 
 warning: variable `M` should have a snake case name
-  --> src/simulations/adjoint.rs:16:9
+  --> src/simulations/adjoint.rs:19:9
    |
-16 |     let M = sim[0].len();
+19 |     let M = sim[0].len();
    |         ^ help: convert the identifier to snake case: `m`
 
-warning: `fhn` (lib) generated 16 warnings (run `cargo fix --lib -p fhn` to apply 1 suggestion)
-   Compiling fhn v0.1.0 (/home/antoine/Documents/fhn)
-error[E0433]: failed to resolve: could not find `optim` in `fhn`
- --> src/bin/main.rs:9:10
-  |
-9 | use fhn::optim::gradient::compute_control_gradient;
-  |          ^^^^^ could not find `optim` in `fhn`
-
-error[E0433]: failed to resolve: could not find `optim` in `fhn`
-  --> src/bin/main.rs:11:10
+warning: variable `L` should have a snake case name
+  --> src/optim/gradient.rs:13:9
    |
-11 | use fhn::optim::gradient::gradient_step;
-   |          ^^^^^ could not find `optim` in `fhn`
+13 |     let L = adjoints.len();
+   |         ^ help: convert the identifier to snake case: `l`
 
-error[E0425]: cannot find value `params` in this scope
-   --> src/bin/main.rs:109:71
-    |
-109 |             let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
-    |                                                                       ^^^^^^ not found in this scope
+warning: variable `M` should have a snake case name
+  --> src/optim/gradient.rs:14:9
+   |
+14 |     let M = adjoints[0].len();
+   |         ^ help: convert the identifier to snake case: `m`
 
-error[E0425]: cannot find value `sigma_ext` in this scope
-   --> src/bin/main.rs:109:79
-    |
-109 |             let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
-    |                                                                               ^^^^^^^^^ not found in this scope
+warning: variable `mean_v_T` should have a snake case name
+  --> src/optim/gradient.rs:65:9
+   |
+65 |     let mean_v_T: f64 = sim.iter().map(|traj| traj[m - 1].v).sum::<f64>() / (l as f64);
+   |         ^^^^^^^^ help: convert the identifier to snake case: `mean_v_t`
 
-error[E0425]: cannot find value `initial` in this scope
-   --> src/bin/main.rs:109:90
+warning: `fhn` (lib) generated 21 warnings (run `cargo fix --lib -p fhn` to apply 1 suggestion)
+   Compiling fhn v0.1.0 (/home/antoine/Documents/fhn)
+error[E0425]: cannot find value `adj` in this scope
+   --> src/bin/main.rs:182:46
     |
-109 |             let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
-    |                                                                                          ^^^^^^^ not found in this scope
-
-error[E0425]: cannot find value `params` in this scope
-   --> src/bin/main.rs:111:46
-    |
-111 |             let adj = compute_adjoint(&sim, &params, [0.0, 0.0, 0.0], 1.0, 1.0, *dt);
-    |                                              ^^^^^^ not found in this scope
+182 |             match plot_adjoint_trajectories(&adj, *dt, "figures/adjoint.png", 5) {
+    |                                              ^^^ not found in this scope
 
 warning: unused import: `fhn::simulations::forward::save_simulation_to_csv`
  --> src/bin/main.rs:6:5
@@ -158,7 +161,6 @@ warning: unused import: `fhn::simulations::forward::plot_individual_neurons`
 8 | use fhn::simulations::forward::plot_individual_neurons;
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Some errors have detailed explanations: E0425, E0433.
-For more information about an error, try `rustc --explain E0425`.
+For more information about this error, try `rustc --explain E0425`.
 warning: `fhn` (bin "main") generated 3 warnings
-error: could not compile `fhn` (bin "main") due to 6 previous errors; 3 warnings emitted
+error: could not compile `fhn` (bin "main") due to 1 previous error; 3 warnings emitted

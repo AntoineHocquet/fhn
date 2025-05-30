@@ -1,0 +1,46 @@
+   Compiling fhn v0.1.0 (/home/antoine/Documents/fhn)
+warning: unused import: `ndarray::Array1`
+ --> src/models/neuron.rs:2:5
+  |
+2 | use ndarray::Array1;
+  |     ^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+error[E0689]: can't call method `powi` on ambiguous numeric type `{float}`
+ --> src/models/reference.rs:9:51
+  |
+9 |     1.5 * (-((t - center).powi(2)) / (2.0 * sigma.powi(2))).exp()
+  |                                                   ^^^^
+  |
+help: you must specify a type for this binding, like `f32`
+  |
+7 |     let sigma: f32 = 5.0;
+  |              +++++
+
+warning: unused variable: `mean_y`
+  --> src/simulations/adjoint.rs:34:13
+   |
+34 |         let mean_y: f64 = sim.iter().map(|traj| traj[r + 1].y).sum::<f64>() / (L as f64);
+   |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_mean_y`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `dt`
+  --> src/optim/gradient.rs:11:5
+   |
+11 |     dt: f64,
+   |     ^^ help: if this is intentional, prefix it with an underscore: `_dt`
+
+warning: value assigned to `terminal_cost` is never read
+  --> src/optim/gradient.rs:54:13
+   |
+54 |     let mut terminal_cost = 0.0;
+   |             ^^^^^^^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` on by default
+
+For more information about this error, try `rustc --explain E0689`.
+warning: `fhn` (lib) generated 4 warnings
+error: could not compile `fhn` (lib) due to 1 previous error; 4 warnings emitted

@@ -6,9 +6,13 @@ use fhn::simulations::forward::simulate_fhn_population;
 use fhn::simulations::forward::save_simulation_to_csv;
 use fhn::simulations::forward::plot_local_field_potential;
 use fhn::simulations::forward::plot_individual_neurons;
-use fhn::optim::gradient::compute_control_gradient;
-use fhn::simulations::adjoint::compute_adjoint;
-use fhn::optim::gradient::gradient_step;
+use fhn::simulations::forward::{simulate_with_control, plot_average_potential};
+use fhn::simulations::adjoint::{compute_adjoint, plot_adjoint_trajectories};
+use fhn::optim::gradient::{evaluate_cost, compute_control_gradient, gradient_step, plot_cost_trace, plot_control};
+use fhn::models::reference::plot_reference_profile;
+use std::fs::File;
+use std::io::Write;
+
 
 
 
@@ -123,18 +127,81 @@ fn main() {
             };
             let sigma_ext = 0.04;
 
-            // 1. Start from dummy control
             let mut control = vec![0.5; *steps];
-            // 2. Simulate with control
-            let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
-            // 3. Compute adjoint
-            let adj = compute_adjoint(&sim, &params, [0.0, 0.0, 0.0], 1.0, 1.0, *dt);
-            // 4. Compute gradient
-            let grad = compute_control_gradient(&adj, &control, 0.01, *dt);
-            // 5. Apply gradient descent
-            let control_updated = gradient_step(&control, &grad, 0.1);
-            println!("∇J(0) = {:.4}", grad[0]);
-            println!("α₀ old = {:.4}, α₀ new = {:.4}", control[0], control_updated[0]);
+            let mut cost_trace = Vec::new();
+            let max_iters = 20;
+            let step_size = 0.005;
+            let lambda2 = 0.01;
+            let gamma = 1.0;
+            let c_t = 1.0;
+            let y_target = [0.0, 0.0, 0.0];
+            
+            // Introduce adjoint profile
+            let mut last_adj = vec![];
+
+            // Optimization loop
+            for iter in 0..max_iters {
+                let sim = simulate_fhn_population(*neurons, *steps, *dt, &params, sigma_ext, initial);
+                let cost = evaluate_cost(&sim, &control, y_target, gamma, lambda2, c_t, *dt);
+                cost_trace.push(cost);
+
+                let adj = compute_adjoint(&sim, &params, y_target, gamma, c_t, *dt);
+                last_adj = adj.clone(); // save last adjoint for plotting later
+
+                let grad = compute_control_gradient(&adj, &control, lambda2, *dt);
+                control = gradient_step(&control, &grad, step_size);
+
+                println!("Iter {:>2}: J(α) = {:.6}", iter, cost);
+            }
+
+            // save optimal control to csv
+            let mut file = File::create("output/control.csv").expect("Failed to create control.csv");
+            writeln!(file, "t,alpha").unwrap();
+            for (i, alpha) in control.iter().enumerate() {
+                writeln!(file, "{:.4},{}", i as f64 * dt, alpha).unwrap();
+            }
+            println!("✅ Saved final control to output/control.csv");
+
+
+            // save cost to csv
+            let mut file = File::create("output/cost.csv").expect("Failed to create cost.csv");
+            writeln!(file, "iter,cost").unwrap();
+            for (i, j) in cost_trace.iter().enumerate() {
+                writeln!(file, "{},{}", i, j).unwrap();
+            }
+            println!("✅ Saved cost trace to output/cost.csv");
+            
+            // Plot control
+            match plot_control(&control, *dt, "figures/control.png") {
+                Ok(_) => println!("✅ Control plot saved to figures/control.png"),
+                Err(e) => eprintln!("❌ Failed to plot control: {}", e),
+            }
+
+            // Plot cost
+            match plot_cost_trace(&cost_trace, "figures/cost.png") {
+                Ok(_) => println!("✅ Cost plot saved to figures/cost.png"),
+                Err(e) => eprintln!("❌ Failed to plot cost: {}", e),
+            }
+
+            // Plot adjoint
+            match plot_adjoint_trajectories(&last_adj, *dt, "figures/adjoint.png", 5) {
+                Ok(_) => println!("✅ Adjoint plot saved to figures/adjoint.png"),
+                Err(e) => eprintln!("❌ Failed to plot adjoint: {}", e),
+            }
+
+            // Plot reference profile
+            match plot_reference_profile(*dt * *steps as f64, *dt, "figures/reference.png") {
+                Ok(_) => println!("✅ Reference profile plot saved to figures/reference.png"),
+                Err(e) => eprintln!("❌ Failed to plot reference profile: {}", e),
+            }
+            
+            // Plot controlled profile
+            let final_sim = simulate_with_control(*neurons, *steps, *dt, &params, &control, initial);
+            match plot_average_potential(&final_sim, *dt, "figures/potential.png") {
+                Ok(_) => println!("✅ Average potential plot saved to figures/potential.png"),
+                Err(e) => eprintln!("❌ Failed to plot potential: {}", e),
+            }
+
         }
     }
 }
