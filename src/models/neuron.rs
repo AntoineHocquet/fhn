@@ -7,9 +7,17 @@ pub struct NeuronState {
     pub y: f64, // Synaptic gate
 }
  
-/// Define the Parameters Struct
-/// This holds all constants from the FHN model and synapse dynamics 
-
+/// We now define the Parameters Struct, which holds all constants from the FHN model.
+/// This struct will be passed to the simulation functions.
+/// 
+/// The significance of each parameter is roughly described here (see the AMOP paper for details):
+/// a,b,c,I,sigex = parameter of non coupled FitzHugh-Nagumo model
+/// J, sigJ = synaptical weights
+/// Iext = external current (i.e. the control)
+/// Vrev = reversal potential for synaptic gates
+/// ar,ad = transition rates for opening and closing of synaptic gates
+/// lambda, VT =parameters for sigmoid correlation between potential and release of neurotransmitter
+/// Tmax = time constant for neurotransmitter release
 #[derive(Debug, Clone, Copy)]
 pub struct FhnParameters {
     pub a: f64,
@@ -21,14 +29,13 @@ pub struct FhnParameters {
     pub Tmax: f64,
     pub lambda: f64,
     pub VT: f64,
-    pub J: f64,      // coupling strength
-    pub Iext: f64,   // external current
+    pub J: f64,
+    pub Iext: f64,
 }
 
-/// Implement the Drift function:
-/// Add a method to compute the deterministic drift 
-/// of a neuron's state. The mean_y variable is the average from the
-///  other neurons (mean field term)
+/// The next step is to implement the drift function:
+/// Add a method to compute the deterministic drift of a neuron's state. 
+/// The mean_y variable is the average from the other neurons (mean field term)
 impl NeuronState {
     pub fn drift(&self, mean_y: f64, params: &FhnParameters) -> NeuronState {
         let v = self.v;

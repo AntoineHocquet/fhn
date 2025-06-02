@@ -2,11 +2,7 @@
 
 use clap::{Parser, Subcommand};
 use fhn::models::neuron::{FhnParameters, NeuronState};
-use fhn::simulations::forward::simulate_fhn_population;
-use fhn::simulations::forward::save_simulation_to_csv;
-use fhn::simulations::forward::plot_local_field_potential;
-use fhn::simulations::forward::plot_individual_neurons;
-use fhn::simulations::forward::{simulate_with_control, plot_average_potential};
+use fhn::simulations::forward::{simulate_fhn_population, plot_local_field_potential, plot_individual_neurons, plot_average_potential, save_simulation_to_csv, simulate_with_control};
 use fhn::simulations::adjoint::{compute_adjoint, plot_adjoint_trajectories};
 use fhn::optim::gradient::{evaluate_cost, compute_control_gradient, gradient_step, plot_cost_trace, plot_control};
 use fhn::models::reference::plot_reference_profile;
@@ -61,23 +57,29 @@ fn main() {
             dt,
         } => {
             println!("Running simulation with L = {neurons}, M = {steps}, dt = {dt}");
-
+            
+            // Initial condition used for the simulations in the paper
             let initial = NeuronState {
-                v: -1.0,
-                w: 0.0,
-                y: 0.5,
+                v: -0.8275021695916729,
+                w: 0.1391607698173808,
+                y: 0.589165868968053
             };
-
+            
+            // Simulation parameters used for the simulations in the paper
             let params = FhnParameters {
                 a: 0.7,
                 b: 0.8,
                 c: 0.08,
+                // excitatory synapses since rev. potential higher then rest. potential:
                 Vrev: 1.2,
+                // fast excitatory conductance i.e. fast activation and deactivation:
                 ar: 1.0,
                 ad: 0.3,
                 Tmax: 1.0,
                 lambda: 0.1,
+                // threshold for presynaptic neuron for opening of synaptic gates to postsynaptic neuron:
                 VT: 2.0,
+                // Coupling strength:
                 J: 0.46,
                 Iext: 0.5,
             };
@@ -108,9 +110,9 @@ fn main() {
         }
         Commands::Optimize { neurons, steps, dt } => {
             let initial = NeuronState {
-                v: -1.0,
-                w: 0.0,
-                y: 0.5,
+                v: -0.8275021695916729,
+                w: 0.1391607698173808,
+                y: 0.589165868968053
             };
             let params = FhnParameters {
                 a: 0.7,
